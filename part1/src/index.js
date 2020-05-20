@@ -1,99 +1,68 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
+const App = (props) => {
+  const [selected, setSelected] = useState(0)
+  const votesNew = new Array(anecdotes.length).fill(0);
+  const [votes, setVotes] = useState(votesNew)
 
-const App = () => {
-  // save clicks of each button to own state
-  const [good, setGood] = useState(0)
-  const [neutral, setNeutral] = useState(0)
-  const [bad, setBad] = useState(0) 
-  return (
-    <div>
-      <Header />
-      
-      <Button onClick={() => setGood(good + 1)  } text ={"Good Coffe"} /> 
-      <Button onClick={() => setBad(bad + 1) } text ={"Bad Coffe"} /> 
-      <Button onClick={() => setNeutral(neutral + 1) } text ={"Meh Coffe"} /> 
+  const changeAnecdote = () => setSelected(getRandomInt(0, anecdotes.length - 1))
 
-      <Statistics good={good} bad={bad} neutral={neutral} />
-
-    </div>
-  )
-}
-
-const Statistics = ({good, bad, neutral}) => {
-
-  if(good+bad+neutral === 0){
-    return(
-      <>
-        <StatisticsHeader />
-        No feedback given
-      </>
-    )
+  const voteAnecdote = () => {
+    const votesCopy = [...votes];
+    votesCopy[selected] += 1;
+    console.log(votes)
+    setVotes(votesCopy);
   }
-  
-  return (
-    <>
-    <StatisticsHeader />
-    <table>
-      <tbody>
-        <Stat statTitle={"Good coffes"} quantity={good} />
-        <Stat statTitle={"Bad coffes"} quantity={bad}  />
-        <Stat statTitle={"Meh coffes"} quantity={neutral} />
-        <Stat statTitle={"Total Coffees"} quantity={good+bad+neutral} /> 
-        <Stat statTitle={"Average Coffees"} quantity={getAverage(good,bad,neutral)} /> 
-        <Stat statTitle={"Positive Coffees"} quantity={getPositives(good,bad,neutral)} /> 
-      </tbody>
-    </table>
-    </>
-  )
-
-}
-
-const getAverage = (good, bad, neutral) => {
-  if(good+bad+neutral===0) return 0;
-
-  return (good - bad)/(good+bad+neutral)
-}
-
-const getPositives = (good, bad, neutral) => {
-  if(good+bad+neutral===0) return "0%";
-
-  return (good*100)/(good+bad+neutral) + "%"
-}
-
-const Header = () => (
-  <div>
-    <h1>Giving feedback!</h1>
-
-  </div>
-
-)
-
-const StatisticsHeader = () => {
 
   return (
     <div>
-      <h1>Statistics!</h1>
+      {props.anecdotes[selected]}
+      <div>
+        Has {votes[selected]} votes
+      
+      </div>
+      <Button onClick={changeAnecdote} text={"Change anecdote"} />
+      <Button onClick={voteAnecdote} text={"Vote anecdote "} />
+
+      <div>
+        Anecdote with more votes has {Math.max(...votes).toString()} votes. 
+        Max votes are from: {props.anecdotes[Math.max(...votes)]}
+      </div>  
+
     </div>
+    
   )
 }
 
-const Stat = ({statTitle, quantity}) => {
-  return (
-  <tr>
-    <td>{statTitle} served: {quantity}</td>
-  </tr>)
+
+
+
+const getRandomInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  const random = Math.floor(Math.random() * (max - min + 1)) + min;
+  return random;
 }
 
-const Button = ({text, onClick}) => (
-  <>
-    <button onClick={onClick}>
-      {text}
-    </button>
-  </>
-)
 
-ReactDOM.render(<App />, 
+const Button = ({text, onClick}) => {
+  return (
+    <div>
+      <button onClick={onClick}>{text}</button>
+    </div>)
+}
+
+const anecdotes = [
+  'If it hurts, do it more often',
+  'Adding manpower to a late software project makes it later!',
+  'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
+  'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
+  'Premature optimization is the root of all evil.',
+  'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
+]
+
+ReactDOM.render(
+  <App anecdotes={anecdotes} />,
   document.getElementById('root')
 )
